@@ -1,0 +1,8 @@
+target/
+.env
+progress.json
+output/
+SadTalker/
+*.mp3
+*.mp4
+*.wav

@@ -1,0 +1,40 @@
+[project]
+name = "霸总的秘密"
+genre = "romance"
+episodes = 10
+duration_per_episode = 90
+
+[script]
+provider = "openai"
+model = "gpt-3.5-turbo"
+api_key = "${OPENAI_API_KEY}"
+temperature = 0.8
+template_path = "templates/romance.txt"
+
+[voice]
+provider = "edge"
+voice_name = "zh-CN-XiaoxiaoNeural"
+api_key = ""
+region = ""
+
+[video]
+provider = "sadtalker"
+avatar_image = "assets/avatar.png"
+resolution = "720p"
+fps = 30
+
+[assets]
+background_music = "assets/music/"
+sound_effects = "assets/sfx/"
+background_images = "assets/backgrounds/"
+
+[output]
+output_dir = "output/"
+format = "mp4"
+quality = "high"
+
+[upload]
+enabled = false
+platform = "hongguo"
+schedule = "daily"
+episodes_per_day = 2
