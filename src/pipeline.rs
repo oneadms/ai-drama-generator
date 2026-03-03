@@ -1,4 +1,4 @@
-use crate::{config::Config, traits::*, progress::Progress, batch::BatchExecutor};
+use crate::{config::Config, traits::*, progress::Progress, batch::BatchExecutor, tempfile::TempFileManager};
 use anyhow::Result;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -34,14 +34,21 @@ impl Pipeline {
             let start = std::time::Instant::now();
             tracing::info!("开始生成第 {}/{} 集", ep, total);
             
-            let context = progress.lock().await.last_context.clone();
-            let script = self.script_gen.generate(ep, &context).await?;
-            
+            let mut temp_mgr = TempFileManager::new();
             let audio = format!("{}/ep{}.mp3", self.config.output.output_dir.display(), ep);
             let video = format!("{}/ep{}.mp4", self.config.output.output_dir.display(), ep);
             
+            temp_mgr.register(&audio);
+            temp_mgr.register(&video);
+            
+            let context = progress.lock().await.last_context.clone();
+            let script = self.script_gen.generate(ep, &context).await?;
+            
             self.voice_gen.generate(&script, &audio).await?;
             self.video_gen.generate(&audio, &video).await?;
+            
+            temp_mgr.confirm(&audio);
+            temp_mgr.confirm(&video);
             
             let mut prog = progress.lock().await;
             prog.completed.push(ep);

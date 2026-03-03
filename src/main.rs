@@ -5,6 +5,7 @@ mod pipeline;
 mod factory;
 mod progress;
 mod batch;
+mod tempfile;
 
 use anyhow::Result;
 use config::Config;
