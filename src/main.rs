@@ -34,8 +34,10 @@ async fn main() -> Result<()> {
 }
 
 async fn run_server() -> Result<()> {
+    let task_mgr = std::sync::Arc::new(api::TaskManager::new());
+    
     let app = Router::new()
-        .nest("/api", api::create_router())
+        .nest("/api", api::create_router(task_mgr))
         .layer(CorsLayer::permissive());
     
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
