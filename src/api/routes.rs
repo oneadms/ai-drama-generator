@@ -7,12 +7,13 @@ use axum::{
 };
 use std::sync::Arc;
 
-use super::{models::*, tasks::TaskManager};
+use super::{models::*, tasks::TaskManager, sse};
 
 pub fn create_router(task_mgr: Arc<TaskManager>) -> Router {
     Router::new()
         .route("/drama/create", post(create_task))
         .route("/drama/:id", get(get_task))
+        .route("/progress/:id", get(sse::progress_stream))
         .with_state(task_mgr)
 }
 
