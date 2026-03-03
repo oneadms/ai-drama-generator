@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { dramaApi } from '../api/client';
 import type { DramaConfig } from '../types';
+import ProgressPage from './ProgressPage';
 
 export default function ConfigPage() {
   const [config, setConfig] = useState<DramaConfig>({
@@ -17,6 +18,10 @@ export default function ConfigPage() {
     const res = await dramaApi.createTask(config);
     setTaskId(res.data.taskId);
   };
+
+  if (taskId) {
+    return <ProgressPage taskId={taskId} />;
+  }
 
   return (
     <div style={{ padding: '20px' }}>
@@ -39,7 +44,6 @@ export default function ConfigPage() {
         </div>
         <button type="submit">开始生成</button>
       </form>
-      {taskId && <p>任务 ID: {taskId}</p>}
     </div>
   );
 }
