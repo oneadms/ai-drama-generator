@@ -2,42 +2,66 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum GeneratorError {
-    #[error("API 调用失败: {0}")]
+    // API 相关
+    #[error("API request failed: {0}")]
     ApiError(String),
     
-    #[error("网络错误: {0}")]
-    NetworkError(String),
+    #[error("API rate limit exceeded, retry after {retry_after}s")]
+    RateLimitExceeded { retry_after: u64 },
     
-    #[error("认证失败: {0}")]
-    AuthError(String),
+    #[error("API authentication failed: {0}")]
+    AuthenticationError(String),
     
-    #[error("配置错误: {0}")]
-    ConfigError(String),
+    // 网络相关
+    #[error("Network error: {0}")]
+    NetworkError(#[from] reqwest::Error),
     
-    #[error("文件操作失败: {0}")]
-    FileError(String),
+    #[error("Connection timeout after {0}s")]
+    Timeout(u64),
     
-    #[error("解析错误: {0}")]
-    ParseError(String),
+    // 输入验证
+    #[error("Invalid input: {0}")]
+    InvalidInput(String),
     
-    #[error("超时: {0}")]
-    TimeoutError(String),
+    #[error("Missing parameter: {0}")]
+    MissingParameter(String),
     
-    #[error("资源不足: {0}")]
-    ResourceError(String),
+    // 文件操作
+    #[error("File error: {0}")]
+    FileError(#[from] std::io::Error),
+    
+    // 资源错误
+    #[error("Resource not initialized")]
+    NotInitialized,
+    
+    // 业务逻辑
+    #[error("Generation failed: {0}")]
+    GenerationFailed(String),
 }
 
 impl GeneratorError {
-    /// 判断错误是否可重试
+    /// 判断是否可重试
     pub fn is_retryable(&self) -> bool {
         matches!(
             self,
-            Self::NetworkError(_) | Self::TimeoutError(_) | Self::ApiError(_)
+            Self::NetworkError(_) | Self::Timeout(_) | Self::RateLimitExceeded { .. }
         )
+    }
+    
+    /// 获取重试延迟(秒)
+    pub fn retry_delay(&self) -> Option<u64> {
+        match self {
+            Self::RateLimitExceeded { retry_after } => Some(*retry_after),
+            Self::NetworkError(_) => Some(2),
+            Self::Timeout(_) => Some(5),
+            _ => None,
+        }
     }
     
     /// 判断是否致命错误
     pub fn is_fatal(&self) -> bool {
-        matches!(self, Self::AuthError(_) | Self::ConfigError(_))
+        matches!(self, Self::AuthenticationError(_) | Self::InvalidInput(_))
     }
 }
+
+pub type Result<T> = std::result::Result<T, GeneratorError>;
