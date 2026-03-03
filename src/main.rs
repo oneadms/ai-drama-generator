@@ -6,6 +6,7 @@ mod factory;
 mod progress;
 mod batch;
 mod tempfile;
+mod errors;
 
 use anyhow::Result;
 use config::Config;
