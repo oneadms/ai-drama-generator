@@ -4,6 +4,7 @@ mod generators;
 mod pipeline;
 mod factory;
 mod progress;
+mod batch;
 
 use anyhow::Result;
 use config::Config;
