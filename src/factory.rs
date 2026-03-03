@@ -3,7 +3,8 @@ use anyhow::{Result, bail};
 use std::sync::Arc;
 
 pub fn create_script_generator(cfg: &ScriptConfig) -> Result<Arc<dyn ScriptGenerator>> {
-    let template = cfg.template_path.to_str().unwrap();
+    let template = cfg.template_path.to_str()
+        .ok_or_else(|| anyhow::anyhow!("Invalid template path"))?;
     match cfg.provider.as_str() {
         "openai" => Ok(Arc::new(OpenAIGenerator::new(cfg.api_key.clone(), cfg.model.clone(), template)?)),
         "claude" => Ok(Arc::new(ClaudeGenerator::new(cfg.api_key.clone(), cfg.model.clone(), template)?)),
