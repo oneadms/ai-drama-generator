@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateTaskRequest {
     pub project_name: String,
     pub genre: String,
@@ -10,12 +11,14 @@ pub struct CreateTaskRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskResponse {
     pub task_id: String,
     pub status: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ProgressEvent {
     pub task_id: String,
     pub episode: u32,
